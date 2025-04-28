@@ -1,4 +1,3 @@
-
 # 목적
 
 - D3라이브러리로 js기반의 데이터 시각화 방식을 이해합니다
@@ -21,3 +20,54 @@
 - 미션 개시 : 4/28(월)
 - 미션 제출 : 5/2(금)
 - 미션 제출 방식 : 미션에 맞게 구현 후 pr 올리기
+
+# 계획서
+
+## 폴더 구조
+
+```
+/src
+  /api        # Axios 인스턴스 및 API 모듈
+  /components # UI 컴포넌트
+    /types    # 각 컴포넌트 별 인터페이스 타입 정의
+  /hooks      # 커스텀 훅
+  /services   # 종목 검색 로직
+  /utils      # D3 상승 및 하락 로직
+  /tests      # 테스트 코드
+```
+
+## 라이브러리 및 프레임워크
+
+- TailwindCSS: UI 스타일링
+- React Query, Axios: 데이터 페칭, 서버 상태 관리
+- react-router-dom: 라우팅
+- D3: 데이터 시각화
+- Jest, Testing Library : 테스팅
+
+## 투두리스트
+
+- API 연동
+
+  - 업비트 OpenAPI 연동 (키 발급)
+  - Axios 인스턴스 구성
+  - 리액트 Query로 기본 시세 데이터 가져오기
+
+- 기본 UI 구축
+
+  - 분봉 캔들 차트 시각화
+  - 종목 검색
+
+- 실시간 데이터 처리
+
+  - React Query refetchInterval로 polling 구현
+  - 이전 시세 대비 상승/하락 색상 구분 로직 구현
+
+- 최적화 고민하기
+
+  - 데이터 캐싱 설정 (staleTime, cacheTime)
+  - 요청 부하 줄이기 (refetchInterval 조정=20초)
+
+- 테스트 코드 작성
+  - 주요 컴포넌트 렌더링 테스트
+  - 종목 검색 기능 테스트
+  - API 응답 mocking 테스트
