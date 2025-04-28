@@ -1,20 +1,23 @@
-# frontend-tech-seminar
 
-프론트엔드 기술을 탐구하는 세미나형 스터디 📚
+# 목적
 
-## 개요
+- D3라이브러리로 js기반의 데이터 시각화 방식을 이해합니다
+- open api와 연동해 캐싱, 요청 간격 조정으로 데이터 요청 최적화 방법을 고민합니다
+- 주어진 data를 UI,UX를 고려해 표현하는 방식을 고민합니다
 
-- 각 팀원은 관심 있는 토픽을 선정하여 관련 기술에 대해 깊이 탐구한다.
-- 탐구한 내용을 [깃허브 위키](https://github.com/Frontend-Deepdive/frontend-tech-seminar/wiki)에 업로드한다.
+# 미션 구성
 
-## Member
+1. react + typescript + D3.js
+2. [업비트의 시세 캔들 조회 api](https://docs.upbit.com/kr/reference/%EC%B4%88second-%EC%BA%94%EB%93%A4)를 사용해 특정 종목의 초단위 시세를 보여준다
 
-|                 [@neungdong](https://www.github.com/neungdong)                  |                   [@abyss-s](https://www.github.com/abyss-s)                   |               [@silverain02](https://www.github.com/silverain02)                |
-| :-----------------------------------------------------------------------------: | :----------------------------------------------------------------------------: | :-----------------------------------------------------------------------------: |
-| <img src="https://avatars.githubusercontent.com/u/171216963?v=4" width="100" /> | <img src="https://avatars.githubusercontent.com/u/77565980?v=4" width="100" /> | <img src="https://avatars.githubusercontent.com/u/108103346?v=4" width="100" /> |
+# 미션 요구사항
 
-## 진행방식
+1. 사용자는 새로 업데이트된 시세의 상승/하락을 색으로 확인할 수 있어야 합니다.
+2. 사용자는 페이지 새로고침 없이 데이터를 업데이트받아서 볼 수 있어야합니다.
+3. [추가] 사용자는 종목을 검색해 시세 종목을 선택할 수 있습니다
 
-- 미션 진행자는 토픽에 따라 팀원들이 함께 참여할 수 있는 미션을 설정한다.
-- 각 미션에 대한 레포를 새로 만들고 그에 대한 README를 작성한다.
-- 각 미션은 Pull Request(PR)로 제출하고, 이후 코드 리뷰를 진행한다.
+---
+
+- 미션 개시 : 4/28(월)
+- 미션 제출 : 5/2(금)
+- 미션 제출 방식 : 미션에 맞게 구현 후 pr 올리기
