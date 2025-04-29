@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 
 export const useWebSocketPrice = (market: string) => {
   const [latestPrice, setLatestPrice] = useState<number | null>(null);
@@ -11,8 +10,7 @@ export const useWebSocketPrice = (market: string) => {
     socket.onopen = () => {
       console.log(`소켓 연결됨. 종목명: ${market}`);
 
-      const ticket = uuidv4();
-      const requestData = [{ ticket }, { type: 'ticker', codes: [market] }];
+      const requestData = [{ type: 'ticker', codes: [market] }];
 
       socket.send(JSON.stringify(requestData));
     };
