@@ -23,23 +23,10 @@
 
 # 계획서
 
-## 폴더 구조
-
-```
-/src
-  /api        # Axios 인스턴스 및 API 모듈
-  /components # UI 컴포넌트
-    /types    # 각 컴포넌트 별 인터페이스 타입 정의
-  /hooks      # 커스텀 훅
-  /services   # 종목 검색 로직
-  /utils      # D3 상승 및 하락 로직
-  /tests      # 테스트 코드
-```
-
 ## 라이브러리 및 프레임워크
 
 - TailwindCSS: UI 스타일링
-- React Query, Axios: 데이터 페칭, 서버 상태 관리
+- React Query: 데이터 페칭, 서버 상태 관리
 - react-router-dom: 라우팅
 - D3: 데이터 시각화
 - Jest, Testing Library : 테스팅
@@ -48,13 +35,12 @@
 
 - API 연동
 
-  - 업비트 OpenAPI 연동 (키 발급)
-  - Axios 인스턴스 구성
-  - 리액트 Query로 기본 시세 데이터 가져오기
+  - 업비트 OpenAPI 연동
+  - 웹소켓으로 기본 시세 데이터 가져오기
 
 - 기본 UI 구축
 
-  - 분봉 캔들 차트 시각화
+  - 초봉 캔들 차트 시각화
   - 종목 검색
 
 - 실시간 데이터 처리
