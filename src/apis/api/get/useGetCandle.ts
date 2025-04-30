@@ -35,11 +35,9 @@ export const useGetCandle = (props: MinutesProps | OtherProps) => {
 
       const url =
         props.unit === 'minutes' ? `/candles/minutes/${props.minute}` : `/candles/${props.unit}`;
+      const { data } = await baseApi.get(url + queryParams);
 
-      const { data } = await baseApi.get(url + queryParams); 
-      
-      return data;  
-
+      return data;
     },
   });
 };
