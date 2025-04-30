@@ -15,17 +15,13 @@ function CandleData() {
     count: 3,
   });
 
-  const refinedSeconds = candleDataSeconds?.data
-    ? refineCandleData(candleDataSeconds.data) 
-    : [];
+  const refinedSeconds = candleDataSeconds?.data ? refineCandleData(candleDataSeconds.data) : [];
 
-  const refinedMinutes = candleDataMinutes?.data
-    ? refineCandleData(candleDataMinutes.data) 
-    : [];
+  const refinedMinutes = candleDataMinutes?.data ? refineCandleData(candleDataMinutes.data) : [];
 
   console.log('refinedSeconds', refinedSeconds);
   console.log('refinedMinutes', refinedMinutes);
-  
+
   return (
     <div>
       <h1>CandleData</h1>
