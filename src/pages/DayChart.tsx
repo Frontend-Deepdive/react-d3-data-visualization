@@ -15,6 +15,20 @@ interface ExtendedCandle extends RefinedCandle {
 const DAY_CANDLE_CNT = 100;
 const CANDLE_UNIT = 'days';
 const MARKET_CODE = 'KRW-BTC';
+const MONTH_NAME_ENG = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 
 export default function DayChart() {
   /**
@@ -105,8 +119,9 @@ export default function DayChart() {
       .axisBottom(x)
       .tickValues(parsedData.filter((d) => d.isXAxisMark).map((d) => d.dateStr))
       .tickFormat((d) => {
-        const parts = d.split('-');
-        return `${parseInt(parts[1])}.${parseInt(parts[2])}`; // M.D 형식
+        const [, month] = d.split('-');
+        const monthIndex = parseInt(month) - 1;
+        return `${MONTH_NAME_ENG[monthIndex]}`; // M.D 형식
       });
 
     const yAxis = d3.axisLeft(y).ticks(5).tickFormat(d3.format('~s'));
