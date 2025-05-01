@@ -11,15 +11,18 @@ interface ExtendedCandle extends RefinedCandle {
   isXAxisMark: boolean;
 }
 
-const DAY_CANDLE_CNT = 100; // 가져올 데이터 개수
+//상수 처리
+const DAY_CANDLE_CNT = 100;
+const CANDLE_UNIT = 'days';
+const MARKET_CODE = 'KRW-BTC';
 
 export default function DayChart() {
   /**
    * data fetching
    */
   const { data, isSuccess } = useGetCandle({
-    unit: 'days',
-    marketCode: 'KRW-BTC',
+    unit: CANDLE_UNIT,
+    marketCode: MARKET_CODE,
     count: DAY_CANDLE_CNT,
   });
 
