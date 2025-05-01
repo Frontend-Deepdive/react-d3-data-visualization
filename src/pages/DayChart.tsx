@@ -2,12 +2,16 @@ import { useGetCandle } from '@/apis/api/get/useGetCandle';
 import { refineCandleData, RefinedCandle } from '@/utils/refineCandle';
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
+import { toISOString } from '@/utils/dateUtils';
 
 // date 형식 전환을 추구한 type
 interface ExtendedCandle extends RefinedCandle {
   date: Date;
   dateStr: string;
+  isXAxisMark: boolean;
 }
+
+const DAY_CANDLE_CNT = 100; // 가져올 데이터 개수
 
 export default function DayChart() {
   /**
@@ -16,7 +20,7 @@ export default function DayChart() {
   const { data, isSuccess } = useGetCandle({
     unit: 'days',
     marketCode: 'KRW-BTC',
-    count: 10,
+    count: DAY_CANDLE_CNT,
   });
 
   const [refinedData, setRefinedData] = useState<RefinedCandle[] | null>(null);
@@ -49,19 +53,29 @@ export default function DayChart() {
     svg.selectAll('.line').remove();
     svg.selectAll('circle').remove();
 
+    // 날짜 기준 오름 차순 처리
+    refinedData.sort((a: RefinedCandle, b: RefinedCandle) => {
+      const dateA = new Date(a.timestamp).getTime();
+      const dateB = new Date(b.timestamp).getTime();
+      return dateA - dateB;
+    });
+
     // dates 형식 날짜 기준으로 파싱
-    const parsedData: ExtendedCandle[] = refinedData.map((d) => {
+    let prevMonth = 0;
+    let parsedData: ExtendedCandle[] = refinedData.map((d) => {
       const date = new Date(d.timestamp);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = toISOString(d.timestamp).split('T')[0];
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const isXAxisMark = prevMonth !== month;
+      prevMonth = month;
+
       return {
         ...d,
         date,
         dateStr,
+        isXAxisMark,
       };
     });
-
-    // 날짜 기준 오름 차순 처리
-    parsedData.sort((a, b) => a.date.getTime() - b.date.getTime());
 
     // x, y 축 스케일
     const x = d3
@@ -84,11 +98,13 @@ export default function DayChart() {
       .range([height - margin.bottom, margin.top]);
 
     // 축 생성기
-    const xAxis = d3.axisBottom(x).tickFormat((d) => {
-      // Convert YYYY-MM-DD to M.D format
-      const parts = String(d).split('-');
-      return `${parseInt(parts[1])}.${parseInt(parts[2])}`;
-    });
+    const xAxis = d3
+      .axisBottom(x)
+      .tickValues(parsedData.filter((d) => d.isXAxisMark).map((d) => d.dateStr))
+      .tickFormat((d) => {
+        const parts = d.split('-');
+        return `${parseInt(parts[1])}.${parseInt(parts[2])}`; // M.D 형식
+      });
 
     const yAxis = d3.axisLeft(y).ticks(5).tickFormat(d3.format('~s'));
 
@@ -124,7 +140,7 @@ export default function DayChart() {
       .join('circle')
       .attr('cx', (d) => (x(d.dateStr) || 0) + x.bandwidth() / 2) // band에 중앙에 위치
       .attr('cy', (d) => y(d.close))
-      .attr('r', 4)
+      .attr('r', 1.5)
       .attr('fill', 'tomato');
   }, [refinedData]);
 
