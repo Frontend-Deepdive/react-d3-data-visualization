@@ -1,7 +1,7 @@
 import { useGetCandle } from '@/apis/api/get/useGetCandle';
 import { refineCandleData, RefinedCandle } from '@/utils/refineCandle';
 import { useEffect, useRef, useState } from 'react';
-import { renderChart } from '@/utils/dayChartUtils';
+import { renderChart } from '@/utils/renderDayChart';
 import * as constants from '../constants/dayChartConstants';
 
 export default function DayChart({
@@ -33,6 +33,8 @@ export default function DayChart({
    * refinedData가 업데이트 될거나 style이 바뀔 때 마다 그래프 그리기
    */
   useEffect(() => {
+    console.log('refinedData', refinedData);
+    // 시세 chart 그리기
     if (refinedData && svgRef.current && gx.current && gy.current) {
       renderChart(refinedData, svgRef.current, gx.current, gy.current, width, height, margin);
     }
