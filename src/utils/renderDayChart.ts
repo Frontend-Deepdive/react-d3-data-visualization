@@ -162,12 +162,11 @@ export const renderChart = (
   gy: SVGSVGElement,
   width: number,
   height: number,
+  volumeHeight: number,
   margin: { top: number; right: number; bottom: number; left: number },
 ) => {
   if (!refinedData || !refinedData.length || !svgRef) return;
 
-  //거래량 그래프 높이
-  const volumeHeight = 60;
   // 그래프를 그릴 대상 dom
   const svg = d3.select(svgRef);
 

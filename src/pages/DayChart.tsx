@@ -8,6 +8,7 @@ export default function DayChart({
   width = constants.DEFAULT_WIDTH,
   height = constants.DEFAULT_HEIGHT,
   margin = constants.DEFAULT_MARGIN,
+  volume_height = constants.DEFAULT_VOLUME_HEIGHT,
 }) {
   /**
    * data fetching
@@ -36,7 +37,16 @@ export default function DayChart({
     console.log('refinedData', refinedData);
     // 시세 chart 그리기
     if (refinedData && svgRef.current && gx.current && gy.current) {
-      renderChart(refinedData, svgRef.current, gx.current, gy.current, width, height, margin);
+      renderChart(
+        refinedData,
+        svgRef.current,
+        gx.current,
+        gy.current,
+        width,
+        height,
+        volume_height,
+        margin,
+      );
     }
   }, [refinedData, width, height, margin]);
 
