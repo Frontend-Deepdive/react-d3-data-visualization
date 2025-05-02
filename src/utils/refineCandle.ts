@@ -18,7 +18,7 @@ export interface ExtendedCandle extends RefinedCandle {
 
 export const refineCandleData = (rawData: any[]): RefinedCandle[] => {
   return rawData.map((item) => ({
-    timestamp: toISOString(item.timestamp || item.candle_date_time_kst),
+    timestamp: toISOString(item.candle_date_time_utc),
     open: item.opening_price,
     high: item.high_price,
     low: item.low_price,
