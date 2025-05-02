@@ -36,28 +36,30 @@ const createChartScales = (
   width: number,
   height: number,
   margin: { top: number; right: number; bottom: number; left: number },
+  volumeHeight: number,
 ) => {
-  // x축 스케일
   const x = d3
     .scaleBand()
     .domain(parsedData.map((d) => d.dateStr))
     .range([margin.left, width - margin.right])
     .padding(0.1);
 
-  // y축 스케일을 위한 min, max 값
-  const minValue = d3.min(parsedData, (d) => d.low);
-  const maxValue = d3.max(parsedData, (d) => d.high);
-
-  // y축 범위 타입 명시
-  const yMin = minValue !== undefined ? minValue * 0.999 : 0;
-  const yMax = maxValue !== undefined ? maxValue * 1.001 : 1;
+  const minValue = d3.min(parsedData, (d) => d.low) ?? 0;
+  const maxValue = d3.max(parsedData, (d) => d.high) ?? 1;
 
   const y = d3
     .scaleLinear()
-    .domain([yMin, yMax])
-    .range([height - margin.bottom, margin.top]);
+    .domain([minValue * 0.999, maxValue * 1.001])
+    .range([height - margin.bottom - volumeHeight, margin.top]);
 
-  return { x, y };
+  // 거래량 y축
+  const volumeMax = d3.max(parsedData, (d) => d.volume) ?? 0;
+  const yVolume = d3
+    .scaleLinear()
+    .domain([0, volumeMax * 1.1])
+    .range([height - margin.bottom, height - margin.bottom - volumeHeight]);
+
+  return { x, y, yVolume };
 };
 
 // 축 생성 및 그리기 함수
@@ -91,6 +93,27 @@ const drawAxes = (
     .call(xAxis);
 
   d3.select(gy).attr('transform', `translate(${margin.left}, 0)`).call(yAxis);
+};
+
+//거래량 봉 그래프 그리기 함수
+const drawVolumeBars = (
+  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
+  parsedData: ExtendedCandle[],
+  x: d3.ScaleBand<string>,
+  yVolume: d3.ScaleLinear<number, number>,
+) => {
+  svg.selectAll('.volume-bar').remove();
+
+  svg
+    .selectAll('.volume-bar')
+    .data(parsedData)
+    .join('rect')
+    .attr('class', 'volume-bar')
+    .attr('x', (d) => x(d.dateStr) ?? 0)
+    .attr('y', (d) => yVolume(d.volume))
+    .attr('width', x.bandwidth())
+    .attr('height', (d) => yVolume(0) - yVolume(d.volume))
+    .attr('fill', '#9fc5e8');
 };
 
 // 선과 점 그리기 함수
@@ -143,6 +166,8 @@ export const renderChart = (
 ) => {
   if (!refinedData || !refinedData.length || !svgRef) return;
 
+  //거래량 그래프 높이
+  const volumeHeight = 60;
   // 그래프를 그릴 대상 dom
   const svg = d3.select(svgRef);
 
@@ -150,11 +175,12 @@ export const renderChart = (
   const parsedData = parseDataWithDates(refinedData);
 
   // 스케일 생성
-  const { x, y } = createChartScales(parsedData, width, height, margin);
+  const { x, y, yVolume } = createChartScales(parsedData, width, height, margin, volumeHeight);
 
   // 축 그리기
   drawAxes(parsedData, x, y, gx, gy, height, margin);
 
   // 선과 점 그리기
   drawLineAndPoints(svg, parsedData, x, y);
+  drawVolumeBars(svg, parsedData, x, yVolume);
 };
