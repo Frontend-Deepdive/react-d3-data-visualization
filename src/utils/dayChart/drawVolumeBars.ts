@@ -18,5 +18,5 @@ export const drawVolumeBars = (
     .attr('y', (d) => yVolume(d.volume))
     .attr('width', x.bandwidth())
     .attr('height', (d) => yVolume(0) - yVolume(d.volume))
-    .attr('fill', '#9fc5e8');
+    .attr('fill', (d) => (d.open >= d.close ? '#0062DF' : '#DD3C44'));
 };
