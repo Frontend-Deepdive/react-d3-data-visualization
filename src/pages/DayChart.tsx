@@ -1,7 +1,7 @@
 import { useGetCandle } from '@/apis/api/get/useGetCandle';
 import { refineCandleData, RefinedCandle } from '@/utils/refineCandle';
 import { useEffect, useRef, useState } from 'react';
-import { renderChart } from '@/utils/renderDayChart';
+import { renderChart } from '@/utils/dayChart/renderDayChart';
 import * as constants from '../constants/dayChartConstants';
 
 export default function DayChart({
