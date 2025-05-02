@@ -1,43 +1,22 @@
 import { useGetCandle } from '@/apis/api/get/useGetCandle';
-import { refineCandleData, RefinedCandle } from '@/utils/refineCandle';
+import { refineCandleData, RefinedCandle, ExtendedCandle } from '@/utils/refineCandle';
 import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { toISOString } from '@/utils/dateUtils';
+import * as constants from '../constants/dayChartConstants';
 
-// date 형식 전환을 추구한 type
-interface ExtendedCandle extends RefinedCandle {
-  date: Date;
-  dateStr: string;
-  isXAxisMark: boolean;
-}
-
-//상수 처리
-const DAY_CANDLE_CNT = 100;
-const CANDLE_UNIT = 'days';
-const MARKET_CODE = 'KRW-BTC';
-const MONTH_NAME_ENG = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
-export default function DayChart() {
+export default function DayChart({
+  width = constants.DEFAULT_WIDTH,
+  height = constants.DEFAULT_HEIGHT,
+  margin = constants.DEFAULT_MARGIN,
+}) {
   /**
    * data fetching
    */
   const { data, isSuccess } = useGetCandle({
-    unit: CANDLE_UNIT,
-    marketCode: MARKET_CODE,
-    count: DAY_CANDLE_CNT,
+    unit: constants.CANDLE_UNIT,
+    marketCode: constants.MARKET_CODE,
+    count: constants.DAY_CANDLE_CNT,
   });
 
   const [refinedData, setRefinedData] = useState<RefinedCandle[] | null>(null);
@@ -50,10 +29,6 @@ export default function DayChart() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const gx = useRef<SVGGElement>(null);
   const gy = useRef<SVGGElement>(null);
-
-  const width = 600;
-  const height = 400;
-  const margin = { top: 20, right: 20, bottom: 30, left: 50 };
 
   /**
    * refinedData가 업데이트 될 때 마다 그래프 그리기
@@ -82,7 +57,7 @@ export default function DayChart() {
     let parsedData: ExtendedCandle[] = refinedData.map((d) => {
       const date = new Date(d.timestamp);
       const dateStr = toISOString(d.timestamp).split('T')[0];
-      const [year, month, day] = dateStr.split('-').map(Number);
+      const [, month] = dateStr.split('-').map(Number);
       const isXAxisMark = prevMonth !== month;
       prevMonth = month;
 
@@ -121,7 +96,7 @@ export default function DayChart() {
       .tickFormat((d) => {
         const [, month] = d.split('-');
         const monthIndex = parseInt(month) - 1;
-        return `${MONTH_NAME_ENG[monthIndex]}`; // M.D 형식
+        return `${constants.MONTH_NAME_ENG[monthIndex]}`; // month name 표시
       });
 
     const yAxis = d3.axisLeft(y).ticks(5).tickFormat(d3.format('~s'));
