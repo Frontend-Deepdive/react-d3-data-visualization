@@ -66,15 +66,17 @@ const createChartScales = (
 const drawAxes = (
   parsedData: ExtendedCandle[],
   x: d3.ScaleBand<string>,
-  y: d3.ScaleLinear<number, number>,
+  yPrice: d3.ScaleLinear<number, number>,
+  yVolume: d3.ScaleLinear<number, number>,
   gx: SVGGElement | null,
   gy: SVGGElement | null,
+  width: number,
   height: number,
   margin: { top: number; right: number; bottom: number; left: number },
 ) => {
   if (!gx || !gy) return;
 
-  // x축 생성기
+  // x축
   const xAxis = d3
     .axisBottom(x)
     .tickValues(parsedData.filter((d) => d.isXAxisMark).map((d) => d.dateStr))
@@ -84,15 +86,26 @@ const drawAxes = (
       return `${constants.MONTH_NAME_ENG[monthIndex]}`;
     });
 
-  // y축 생성기
-  const yAxis = d3.axisLeft(y).ticks(5).tickFormat(d3.format('~s'));
-
-  // 축 그리기
   d3.select(gx)
     .attr('transform', `translate(0, ${height - margin.bottom})`)
     .call(xAxis);
 
-  d3.select(gy).attr('transform', `translate(${margin.left}, 0)`).call(yAxis);
+  // gy 내부 기존 축 그룹 초기화
+  d3.select(gy).selectAll('*').remove();
+
+  // 왼쪽: 거래량 y축
+  d3.select(gy)
+    .append('g')
+    .attr('class', 'y-axis-volume')
+    .attr('transform', `translate(${margin.left}, 0)`)
+    .call(d3.axisLeft(yVolume).ticks(3).tickFormat(d3.format('.2s')));
+
+  // 오른쪽: 시세 y축
+  d3.select(gy)
+    .append('g')
+    .attr('class', 'y-axis-price')
+    .attr('transform', `translate(${width - margin.right}, 0)`)
+    .call(d3.axisRight(yPrice).ticks(5).tickFormat(d3.format('~s')));
 };
 
 //거래량 봉 그래프 그리기 함수
@@ -172,14 +185,17 @@ export const renderChart = (
 
   // 데이터 파싱
   const parsedData = parseDataWithDates(refinedData);
-
   // 스케일 생성
-  const { x, y, yVolume } = createChartScales(parsedData, width, height, margin, volumeHeight);
+  const {
+    x,
+    y: yPrice,
+    yVolume,
+  } = createChartScales(parsedData, width, height, margin, volumeHeight);
 
-  // 축 그리기
-  drawAxes(parsedData, x, y, gx, gy, height, margin);
+  // 축 그리기 (yPrice, yVolume 모두 넘김)
+  drawAxes(parsedData, x, yPrice, yVolume, gx, gy, width, height, margin);
 
-  // 선과 점 그리기
-  drawLineAndPoints(svg, parsedData, x, y);
+  // 그래프
+  drawLineAndPoints(svg, parsedData, x, yPrice);
   drawVolumeBars(svg, parsedData, x, yVolume);
 };

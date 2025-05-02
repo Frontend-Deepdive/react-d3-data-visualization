@@ -26,5 +26,5 @@ export const MONTH_NAME_ENG = [
 //style
 export const DEFAULT_WIDTH = 600;
 export const DEFAULT_HEIGHT = 400;
-export const DEFAULT_MARGIN = { top: 20, right: 20, bottom: 30, left: 50 };
+export const DEFAULT_MARGIN = { top: 20, right: 60, bottom: 40, left: 60 };
 export const DEFAULT_VOLUME_HEIGHT = 60;
