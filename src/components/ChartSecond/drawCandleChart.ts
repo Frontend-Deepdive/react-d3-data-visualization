@@ -40,8 +40,6 @@ const drawUpbitCandleChart = (
     upCandle: CHART_SECOND_COLOR.upCandle,
     downCandle: CHART_SECOND_COLOR.downCandle,
     neutralCandle: CHART_SECOND_COLOR.neutralCandle,
-    upVolume: CHART_SECOND_COLOR.upVolume,
-    downVolume: CHART_SECOND_COLOR.downVolume,
     basePrice: CHART_SECOND_COLOR.basePrice,
   };
 
@@ -75,20 +73,8 @@ const drawUpbitCandleChart = (
 
   const y = d3.scaleLinear().domain(priceExtent).range([priceChartHeight, 0]).nice();
 
-  // 3. 거래량 Y축 스케일
-  const volumeY = d3
-    .scaleLinear()
-    .domain([0, d3.max(sortedData, (d) => d.volume || 0)! * 1.1])
-    .range([volumeHeight, 0]);
-
   // 가격 차트 영역
   const priceChart = svg.append('g').attr('class', 'price-chart');
-
-  // 거래량 차트 영역
-  const volumeChart = svg
-    .append('g')
-    .attr('class', 'volume-chart')
-    .attr('transform', `translate(0, ${priceChartHeight + 20})`);
 
   // 그리드 라인 추가 (가격)
   priceChart
@@ -160,20 +146,6 @@ const drawUpbitCandleChart = (
     .style('fill', colors.axisText)
     .style('font-size', '11px');
 
-  // 가격 Y축 (왼쪽)
-  priceChart
-    .append('g')
-    .attr('class', 'y-axis')
-    .call(
-      d3
-        .axisLeft(y)
-        .ticks(6)
-        .tickFormat((d) => d.toLocaleString('ko-KR')),
-    )
-    .selectAll('text')
-    .style('fill', colors.axisText)
-    .style('font-size', '11px');
-
   // 가격 Y축 (오른쪽)
   priceChart
     .append('g')
@@ -182,35 +154,15 @@ const drawUpbitCandleChart = (
     .call(
       d3
         .axisRight(y)
-        .ticks(6)
+        .ticks(5)
         .tickFormat((d) => d.toLocaleString('ko-KR')),
     )
     .selectAll('text')
     .style('fill', colors.axisText)
     .style('font-size', '11px');
 
-  // 거래량 Y축
-  volumeChart
-    .append('g')
-    .attr('class', 'volume-y-axis')
-    .call(
-      d3
-        .axisLeft(volumeY)
-        .ticks(3)
-        .tickFormat((d) => {
-          const value = Number(d);
-          if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-          if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
-          return value.toString();
-        }),
-    )
-    .selectAll('text')
-    .style('fill', colors.axisText)
-    .style('font-size', '10px');
-
   // 캔들 너비 계산
   const candleWidth = Math.max(Math.min(width / (sortedData.length + 2), 15), 2);
-  const volumeWidth = candleWidth * 0.8;
 
   // 캔들 그리기
   const candles = priceChart
@@ -254,32 +206,12 @@ const drawUpbitCandleChart = (
           : colors.neutralCandle,
     );
 
-  // 거래량 막대 그리기
-  volumeChart
-    .selectAll('.volume-bar')
-    .data(sortedData)
-    .enter()
-    .append('rect')
-    .attr('class', 'volume-bar')
-    .attr('x', (d) => x(new Date(d.timestamp)) - volumeWidth / 2)
-    .attr('y', (d) => volumeY(d.volume || 0))
-    .attr('width', volumeWidth)
-    .attr('height', (d) => volumeHeight - volumeY(d.volume || 0))
-    .attr('fill', (d) =>
-      d.close > d.open
-        ? colors.upVolume
-        : d.close < d.open
-          ? colors.downVolume
-          : colors.neutralCandle,
-    )
-    .attr('opacity', 0.8);
-
   // 현재 가격 레이블
   const currentPriceLabel = priceChart
     .append('text')
     .attr('class', 'current-price-label')
     .attr('x', width + 5)
-    .attr('fill', 'white')
+    .attr('fill', 'black')
     .attr('font-size', 11)
     .style('display', 'none');
 
@@ -317,12 +249,6 @@ const drawUpbitCandleChart = (
       const d1 = sortedData[index];
 
       if (!d0 || !d1) return;
-
-      const d =
-        xDate.getTime() - new Date(d0.timestamp).getTime() >
-        new Date(d1.timestamp).getTime() - xDate.getTime()
-          ? d1
-          : d0;
     });
 
   // 스타일링 적용

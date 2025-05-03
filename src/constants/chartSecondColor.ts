@@ -5,8 +5,6 @@ const CHART_SECOND_COLOR = {
   upCandle: '#ee0000', // 상승 캔들
   downCandle: '#000fff', // 하락 캔들
   neutralCandle: '#b5b5b5', // 보합 캔들
-  upVolume: '#ee0000', // 상승 거래량
-  downVolume: '#000fff', // 하락 거래량
   basePrice: '#ffcccc', // 기준 가격선
 };
 
