@@ -49,25 +49,25 @@ const ChartSecond = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       refetch();
-    }, 1000); // 1초마다 갱신
+    }, 3000); // 3초마다 갱신
 
     return () => clearInterval(interval);
   }, [refetch]);
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-semibold ">{market} 초봉 캔들 차트</h2>
-      {isLoading && <div>Loading...</div>}
-      {error && <div>Error loading data</div>}
-      {
-        <div className="w-full h-128">
-          {candles.length === 0 ? (
-            <div>데이터가 없습니다.</div>
-          ) : (
-            <svg ref={svgRef} width="100%" height="100%" />
-          )}
-        </div>
-      }
+      <h2 className="text-2xl font-semibold">{market} 초봉 캔들 차트</h2>
+      <div ref={containerRef} className="w-full h-128">
+        {isLoading ? (
+          <div>로딩 중입니다...</div>
+        ) : error ? (
+          <div>데이터 로딩 오류 발생</div>
+        ) : candles.length === 0 ? (
+          <div>데이터가 없습니다.</div>
+        ) : (
+          <svg ref={svgRef} width="100%" height="100%" />
+        )}
+      </div>
     </div>
   );
 };
