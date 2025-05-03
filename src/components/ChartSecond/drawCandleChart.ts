@@ -1,5 +1,7 @@
 import * as d3 from 'd3';
 import { RefinedCandle } from '@/utils/refineCandle';
+import CHART_SECOND_COLOR from '@/constants/chartSecondColor';
+import { transformTimeformat } from '@/utils/dateUtils';
 
 interface Dimensions {
   width: number;
@@ -27,22 +29,20 @@ const drawUpbitCandleChart = (
   const margin = { top: 20, right: 60, bottom: 100, left: 60 };
   const width = dimensions.width - margin.left - margin.right;
   const height = dimensions.height - margin.top - margin.bottom;
-  const volumeHeight = 80; // 거래량 차트 높이
+  const volumeHeight = 40; // 거래량 차트 높이
   const priceChartHeight = height - volumeHeight - 20; // 가격 차트 높이
 
-  // 색상 테마 (Upbit 스타일)
+  // 색상 테마
   const colors = {
-    background: '#FFFfff',
-    gridLines: '#c9c9c9',
-    axisText: '#0c0c0c',
-    upCandle: '#ee0000', // 상승 캔들 (빨간색)
-    downCandle: '#000fff', // 하락 캔들 (파란색)
-    neutralCandle: '#b5b5b5', // 보합 캔들 (회색)
-    upVolume: '#ee0000', // 상승 거래량
-    downVolume: '#000fff', // 하락 거래량
-    tooltip: 'rgba(26, 35, 55, 0.9)',
-    crosshair: 'rgba(255, 255, 255, 0.5)',
-    basePrice: '#ffcc33', // 기준 가격
+    background: CHART_SECOND_COLOR.background,
+    gridLines: CHART_SECOND_COLOR.gridLines,
+    axisText: CHART_SECOND_COLOR.axisText,
+    upCandle: CHART_SECOND_COLOR.upCandle,
+    downCandle: CHART_SECOND_COLOR.downCandle,
+    neutralCandle: CHART_SECOND_COLOR.neutralCandle,
+    upVolume: CHART_SECOND_COLOR.upVolume,
+    downVolume: CHART_SECOND_COLOR.downVolume,
+    basePrice: CHART_SECOND_COLOR.basePrice,
   };
 
   // SVG 설정
@@ -57,13 +57,6 @@ const drawUpbitCandleChart = (
   const sortedData = [...data].sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
   );
-
-  // 시간 포맷 변환 함수
-  const timeFormat = (timestamp: Date) => {
-    const hours = timestamp.getHours();
-    const minutes = timestamp.getMinutes();
-    return `${hours}:${String(minutes).padStart(2, '0')}`;
-  };
 
   // 1. X축 스케일 (시간)
   const x = d3
@@ -161,7 +154,7 @@ const drawUpbitCandleChart = (
       d3
         .axisBottom(x)
         .ticks(8)
-        .tickFormat((d) => timeFormat(d as Date)),
+        .tickFormat((d) => transformTimeformat(d as Date)),
     )
     .selectAll('text')
     .style('fill', colors.axisText)
@@ -281,40 +274,6 @@ const drawUpbitCandleChart = (
     )
     .attr('opacity', 0.8);
 
-  // 툴팁 요소 추가
-  const tooltip = d3
-    .select('body')
-    .append('div')
-    .attr('class', 'candlestick-tooltip')
-    .style('position', 'absolute')
-    .style('visibility', 'hidden')
-    .style('background', colors.tooltip)
-    .style('color', 'white')
-    .style('padding', '8px')
-    .style('border-radius', '4px')
-    .style('font-size', '12px')
-    .style('pointer-events', 'none')
-    .style('z-index', '10');
-
-  // 크로스헤어 요소
-  const crosshairHorizontal = priceChart
-    .append('line')
-    .attr('class', 'crosshair-h')
-    .attr('x1', 0)
-    .attr('x2', width)
-    .attr('stroke', colors.crosshair)
-    .attr('stroke-width', 0.5)
-    .style('display', 'none');
-
-  const crosshairVertical = svg
-    .append('line')
-    .attr('class', 'crosshair-v')
-    .attr('y1', 0)
-    .attr('y2', height)
-    .attr('stroke', colors.crosshair)
-    .attr('stroke-width', 0.5)
-    .style('display', 'none');
-
   // 현재 가격 레이블
   const currentPriceLabel = priceChart
     .append('text')
@@ -338,12 +297,6 @@ const drawUpbitCandleChart = (
       if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) {
         return;
       }
-
-      // 크로스헤어 표시
-      crosshairHorizontal.attr('y1', mouseY).attr('y2', mouseY);
-      // .style('display', mouseY <= priceChartHeight ? null : 'none');
-
-      crosshairVertical.attr('x1', mouseX).attr('x2', mouseX).style('display', null);
 
       // 현재 마우스 위치의 Y값을 가격으로 변환
       if (mouseY <= priceChartHeight) {
@@ -370,28 +323,6 @@ const drawUpbitCandleChart = (
         new Date(d1.timestamp).getTime() - xDate.getTime()
           ? d1
           : d0;
-
-      // 툴팁 업데이트
-      const date = new Date(d.timestamp);
-      const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${timeFormat(date)}`;
-
-      tooltip
-        .style('visibility', 'visible')
-        .style('left', `${event.pageX + 15}px`)
-        .style('top', `${event.pageY - 10}px`).html(`
-          <div style="margin-bottom: 5px; font-weight: bold;">${formattedDate}</div>
-          <div>시가: ${d.open.toLocaleString('ko-KR')}</div>
-          <div>고가: ${d.high.toLocaleString('ko-KR')}</div>
-          <div>저가: ${d.low.toLocaleString('ko-KR')}</div>
-          <div>종가: ${d.close.toLocaleString('ko-KR')}</div>
-          <div>거래량: ${(d.volume || 0).toLocaleString('ko-KR')}</div>
-        `);
-    })
-    .on('mouseout', function () {
-      tooltip.style('visibility', 'hidden');
-      crosshairHorizontal.style('display', 'none');
-      crosshairVertical.style('display', 'none');
-      currentPriceLabel.style('display', 'none');
     });
 
   // 스타일링 적용
