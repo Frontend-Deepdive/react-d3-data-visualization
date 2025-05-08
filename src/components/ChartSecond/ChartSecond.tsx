@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useGetCandle } from '@/apis/api/get/useGetCandle';
-import { useMarketMutation } from '@/hooks/useMarketMutation';
+
 import drawCandleChart from './drawCandleChart';
 import { refineCandleData } from '@/utils/refineCandle';
+import { useMarketMutation } from '@/hooks/useMarketMutation';
 
-/*
+/**
  * 초봉 캔들 차트 컴포넌트
  */
 const ChartSecond = () => {
@@ -18,28 +19,16 @@ const ChartSecond = () => {
     isLoading,
     error,
     refetch,
-  } = useGetCandle({
-    unit: 'seconds',
-    marketCode: market,
-    count: 30,
-  });
+  } = useGetCandle({ unit: 'seconds', marketCode: market, count: 30 });
 
   const candles = useMemo(() => refineCandleData(rawCandles), [rawCandles]);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (containerRef.current) {
-        setDimensions({ width: 600, height: 400 });
-      }
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-
-    return () => window.removeEventListener('resize', handleResize);
+    if (containerRef.current) {
+      setDimensions({ width: 600, height: 400 });
+    }
   }, []);
 
-  // 캔들 차트 그리기
   useEffect(() => {
     if (candles.length > 0 && svgRef.current) {
       drawCandleChart(candles, svgRef.current, dimensions);
@@ -49,8 +38,7 @@ const ChartSecond = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       refetch();
-    }, 3000); // 3초마다 갱신
-
+    }, 3000);
     return () => clearInterval(interval);
   }, [refetch]);
 
