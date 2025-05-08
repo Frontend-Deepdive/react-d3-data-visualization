@@ -3,6 +3,9 @@ import { RefinedCandle } from '@/utils/refineCandle';
 import CHART_SECOND_COLOR from '@/constants/chartSecondColor';
 import { transformTimeformat } from '@/utils/dateUtils';
 
+/*
+ * 가격 및 시간 그리드 라인 생성
+ */
 export const drawGrid = (
   svg: d3.Selection<SVGGElement, unknown, null, undefined>,
   x: d3.ScaleTime<number, number>,
@@ -37,13 +40,15 @@ export const drawGrid = (
     .attr('stroke-width', 0.5);
 };
 
+/*
+ * x: 시간축 / y: 가격축
+ */
 export const drawAxes = (
   svg: d3.Selection<SVGGElement, unknown, null, undefined>,
   x: d3.ScaleTime<number, number>,
   y: d3.ScaleLinear<number, number>,
   width: number,
   fullHeight: number,
-  priceChartHeight: number,
 ) => {
   svg
     .append('g')
@@ -72,6 +77,9 @@ export const drawAxes = (
     .style('font-size', '11px');
 };
 
+/*
+ * 캔들 그리기
+ */
 export const drawCandles = (
   svg: d3.Selection<SVGGElement, unknown, null, undefined>,
   x: d3.ScaleTime<number, number>,
@@ -87,27 +95,31 @@ export const drawCandles = (
     .attr('class', 'candle')
     .attr('transform', (d) => `translate(${x(new Date(d.timestamp))}, 0)`);
 
+  // 꼬리 (고가~저가)
   candles
     .append('line')
     .attr('x1', 0)
     .attr('x2', 0)
     .attr('y1', (d) => y(d.high))
     .attr('y2', (d) => y(d.low))
-    .attr('stroke', (d) =>
-      d.close > d.open
-        ? CHART_SECOND_COLOR.upCandle
-        : d.close < d.open
-          ? CHART_SECOND_COLOR.downCandle
-          : CHART_SECOND_COLOR.neutralCandle,
+    .attr(
+      'stroke',
+      (d) =>
+        d.close > d.open
+          ? CHART_SECOND_COLOR.upCandle // 상승선
+          : d.close < d.open
+            ? CHART_SECOND_COLOR.downCandle // 하락선
+            : CHART_SECOND_COLOR.neutralCandle, // 보합선
     )
     .attr('stroke-width', 1);
 
+  // 몸통 (시가~종가)
   candles
     .append('rect')
     .attr('x', -candleWidth / 2)
-    .attr('y', (d) => y(Math.max(d.open, d.close))) // 몸통의 위쪽 (시가가 더 높으면 시가가 위)
+    .attr('y', (d) => y(Math.max(d.open, d.close)))
     .attr('width', candleWidth)
-    .attr('height', (d) => Math.max(1, Math.abs(y(d.open) - y(d.close)))) // 시가-종가 거리
+    .attr('height', (d) => Math.max(1, Math.abs(y(d.open) - y(d.close))))
     .attr('fill', (d) =>
       d.close > d.open
         ? CHART_SECOND_COLOR.upCandle
@@ -117,6 +129,10 @@ export const drawCandles = (
     );
 };
 
+/*
+ * 기준가 선 및 텍스트 표시
+ * - 기준가란? 첫 번째 캔들의 시가로, 상승/하락 여부를 명확하게 파악하기 위해 사용
+ */
 export const drawPriceLabels = (
   svg: d3.Selection<SVGGElement, unknown, null, undefined>,
   y: d3.ScaleLinear<number, number>,
