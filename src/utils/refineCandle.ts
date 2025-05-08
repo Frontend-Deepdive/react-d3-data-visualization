@@ -9,9 +9,16 @@ export interface RefinedCandle {
   volume: number;
 }
 
+// date 형식 전환을 추구한 type
+export interface ExtendedCandle extends RefinedCandle {
+  date: Date;
+  dateStr: string;
+  isXAxisMark: boolean;
+}
+
 export const refineCandleData = (rawData: any[]): RefinedCandle[] => {
   return rawData.map((item) => ({
-    timestamp: toISOString(item.timestamp || item.candle_date_time_kst),
+    timestamp: toISOString(item.candle_date_time_utc),
     open: item.opening_price,
     high: item.high_price,
     low: item.low_price,
