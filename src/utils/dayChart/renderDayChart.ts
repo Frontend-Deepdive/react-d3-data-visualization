@@ -5,6 +5,7 @@ import { createChartScales } from './createChartScales';
 import { drawAxes } from './drawAxes';
 import { drawVolumeBars } from './drawVolumeBars';
 import { drawLineAndPoints } from './drawLineAndPoints';
+import { drawCurrentHorizontalLine } from './drawCurrentHorizontalLine';
 
 // 차트 렌더링 메인 함수
 export const renderChart = (
@@ -37,4 +38,10 @@ export const renderChart = (
   // 그래프
   drawLineAndPoints(svg, parsedData, x, yPrice);
   drawVolumeBars(svg, parsedData, x, yVolume);
+
+  // 현재 데이터 기반 y축 수평선 그리기
+  const latestPrice = parsedData[parsedData.length - 1]?.close;
+  if (latestPrice !== undefined) {
+    drawCurrentHorizontalLine(svg, yPrice, latestPrice, width, margin);
+  }
 };
