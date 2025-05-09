@@ -1,31 +1,55 @@
+import { useEffect, useState } from 'react';
 import { useGetCandle } from '../apis/api/get/useGetCandle';
-import { refineCandleData } from '../utils/refineCandle'; //추가
+import { refineCandleData, RefinedCandle } from '../utils/refineCandle';
+import { useMarketMutation } from '../hooks/useMarketMutation';
+import CandleChart from './Chart/CandleChart';
 
 function CandleData() {
-  const candleDataSeconds = useGetCandle({
-    unit: 'seconds',
-    marketCode: 'KRW-BTC',
-    count: 5,
-  });
+  const { market } = useMarketMutation();
+  const [mergedData, setMergedData] = useState<RefinedCandle[]>([]);
 
-  const candleDataMinutes = useGetCandle({
+  const candleData = useGetCandle({
     unit: 'minutes',
-    minute: 3,
-    marketCode: 'KRW-BTC',
-    count: 3,
+    minute: 1,
+    marketCode: market,
+    count: 30,
   });
 
-  const refinedSeconds = candleDataSeconds?.data ? refineCandleData(candleDataSeconds.data) : [];
+  const refinedData = candleData?.data ? refineCandleData(candleData.data) : [];
 
-  const refinedMinutes = candleDataMinutes?.data ? refineCandleData(candleDataMinutes.data) : [];
+  useEffect(() => {
+    if (refinedData.length === 0) return;
+    if (mergedData.length === 0) {
+      const initialData = refinedData.slice(1);
+      setMergedData(
+        initialData.sort(
+          (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+        ),
+      );
+    }
+  }, [refinedData]);
 
-  console.log('refinedSeconds', refinedSeconds);
-  console.log('refinedMinutes', refinedMinutes);
+  useEffect(() => {
+    if (refinedData.length === 0) return;
+    const latestData = refinedData[0];
+    if (!latestData) return;
+
+    setMergedData((prev) => {
+      const isDuplicate = prev.some((item) => item.timestamp === latestData.timestamp);
+      if (isDuplicate) return prev;
+
+      const updated = [...prev, latestData];
+      return updated.sort(
+        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+      );
+    });
+  }, [refinedData.length > 0 ? refinedData[0].timestamp : null]);
 
   return (
-    <div>
-      <h1>CandleData</h1>
-    </div>
+    <>
+      <CandleChart data={mergedData} />
+    </>
   );
 }
+
 export default CandleData;

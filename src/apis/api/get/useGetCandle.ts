@@ -39,5 +39,7 @@ export const useGetCandle = (props: MinutesProps | OtherProps) => {
 
       return data;
     },
+    refetchInterval: 60 * 1000, 
+    staleTime: 60 * 1000, 
   });
 };
